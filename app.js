@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const exphbs = require("express-handlebars");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
@@ -15,6 +16,7 @@ require("./config/passport")(passport);
 //Load routes
 const auth = require("./routes/auth");
 const index = require("./routes/index");
+const stories = require("./routes/stories");
 
 //Map global promises
 mongoose.Promise = global.Promise;
@@ -60,9 +62,13 @@ app.use((req, res, next) => {
   next();
 });
 
+//Set static folders
+app.use(express.static(path.join(__dirname, "public")));
+
 // Use routes
 app.use("/", index);
 app.use("/auth", auth);
+app.use("/stories", stories);
 
 const port = process.env.PORT || 5000;
 
