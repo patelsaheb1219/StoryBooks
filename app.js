@@ -6,7 +6,12 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const passport = require("passport");
+
+//Load keys
 const keys = require("./config/keys");
+
+//handlebars helpers
+const { truncate, stripTags, formatDate } = require("./helpers/hbs");
 
 //Load User Model
 require("./models/User");
@@ -47,6 +52,11 @@ app.use(bodyParser.json());
 app.engine(
   "handlebars",
   exphbs({
+    helpers: {
+      truncate: truncate,
+      stripTags: stripTags,
+      formatDate: formatDate
+    },
     defaultLayout: "main"
   })
 );

@@ -7,7 +7,13 @@ const { ensureAuthenticated, ensureGuest } = require("../helpers/auth");
 
 //Index route for stories
 router.get("/", (req, res) => {
-  res.render("stories/index");
+  Story.find({ status: "public" })
+    .populate("user")
+    .then(stories => {
+      res.render("stories/index", {
+        stories: stories
+      });
+    });
 });
 
 //Add route for story
@@ -21,8 +27,16 @@ router.get("/edit", ensureAuthenticated, (req, res) => {
 });
 
 //Show route for particular story
-router.get("/show", (req, res) => {
-  res.render("stories/show");
+router.get("/show/:id", (req, res) => {
+  Story.findOne({
+    _id: req.params.id
+  })
+    .populate("user")
+    .then(story => {
+      res.render("stories/show", {
+        story: story
+      });
+    });
 });
 
 //Process add Stories

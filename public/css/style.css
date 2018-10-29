@@ -12,6 +12,10 @@ main {
   font-size: 25px;
 }
 
+.story-text {
+  height: 120px;
+}
+
 footer {
   margin-top: 20px;
 }
