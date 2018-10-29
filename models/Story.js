@@ -36,7 +36,7 @@ const StorySchema = new Schema({
     }
   ],
   user: {
-    type: Schema.Type.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "users"
   },
   date: {
