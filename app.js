@@ -12,7 +12,13 @@ const passport = require("passport");
 const keys = require("./config/keys");
 
 //handlebars helpers
-const { truncate, stripTags, formatDate, select } = require("./helpers/hbs");
+const {
+  truncate,
+  stripTags,
+  formatDate,
+  select,
+  editIcon
+} = require("./helpers/hbs");
 
 //Load User Model
 require("./models/User");
@@ -57,7 +63,8 @@ app.engine(
       truncate: truncate,
       stripTags: stripTags,
       formatDate: formatDate,
-      select: select
+      select: select,
+      editIcon: editIcon
     },
     defaultLayout: "main"
   })
