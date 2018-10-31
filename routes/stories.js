@@ -38,6 +38,7 @@ router.get("/show/:id", (req, res) => {
     _id: req.params.id
   })
     .populate("user")
+    .populate("comments.commentUser")
     .then(story => {
       res.render("stories/show", {
         story: story
@@ -49,7 +50,7 @@ router.get("/show/:id", (req, res) => {
 router.post("/", (req, res) => {
   let allowComments;
 
-  if ((req.body, allowComments)) {
+  if (req.body.allowComments) {
     allowComments = true;
   } else {
     allowComments = false;
@@ -75,7 +76,7 @@ router.put("/:id", (req, res) => {
     _id: req.params.id
   }).then(story => {
     let allowComments;
-    if ((req.body, allowComments)) {
+    if (req.body.allowComments) {
       allowComments = true;
     } else {
       allowComments = false;
@@ -97,6 +98,25 @@ router.put("/:id", (req, res) => {
 router.delete("/:id", (req, res) => {
   Story.remove({ _id: req.params.id }).then(() => {
     res.redirect("/dashboard");
+  });
+});
+
+//Add comment
+router.post("/comment/:id", (req, res) => {
+  Story.findOne({
+    _id: req.params.id
+  }).then(story => {
+    const newComment = {
+      commentBody: req.body.commentBody,
+      commentUser: req.user.id
+    };
+
+    //Push to comments array
+    story.comments.unshift(newComment);
+
+    story.save().then(story => {
+      res.redirect(`/stories/show/${story.id}`);
+    });
   });
 });
 
