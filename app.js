@@ -1,105 +1,103 @@
-const express = require("express");
-const path = require("path");
-const exphbs = require("express-handlebars");
-const bodyParser = require("body-parser");
-const methodOverride = require("method-override");
-const mongoose = require("mongoose");
-const cookieParser = require("cookie-parser");
-const session = require("express-session");
-const passport = require("passport");
+const path = require('path')
+const express = require('express')
+const mongoose = require('mongoose')
+const dotenv = require('dotenv')
+const morgan = require('morgan')
+const exphbs = require('express-handlebars')
+const methodOverride = require('method-override')
+const passport = require('passport')
+const session = require('express-session')
+const MongoStore = require('connect-mongo')(session)
+const connectDB = require('./config/db')
 
-//Load keys
-const keys = require("./config/keys");
+// Load config
+dotenv.config({ path: './config/config.env' })
 
-//handlebars helpers
-const {
-  truncate,
-  stripTags,
-  formatDate,
-  select,
-  editIcon
-} = require("./helpers/hbs");
+// Passport config
+require('./config/passport')(passport)
 
-//Load User Model
-require("./models/User");
-require("./models/Story");
+connectDB()
 
-//Passport Config
-require("./config/passport")(passport);
+const app = express()
 
-//Load routes
-const auth = require("./routes/auth");
-const index = require("./routes/index");
-const stories = require("./routes/stories");
+// Body parser
+app.use(express.urlencoded({ extended: false }))
+app.use(express.json())
 
-//Map global promises
-mongoose.Promise = global.Promise;
-
-//Mongoose connect
-mongoose
-  .connect(
-    keys.mongoURI,
-    {
-      useNewUrlParser: true
+// Method override
+app.use(
+  methodOverride(function (req, res) {
+    if (req.body && typeof req.body === 'object' && '_method' in req.body) {
+      // look in urlencoded POST bodies and delete it
+      let method = req.body._method
+      delete req.body._method
+      return method
     }
-  )
-  .then(() => console.log("MongoDB Connected..."))
-  .catch(err => console.log(err));
+  })
+)
 
-const app = express();
+// Logging
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'))
+}
 
-//bodyParser Middleware
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+// Handlebars Helpers
+const {
+  formatDate,
+  stripTags,
+  truncate,
+  editIcon,
+  select,
+} = require('./helpers/hbs')
 
-//Method overide middleware
-app.use(methodOverride("_method"));
-
-// Handlebars middleware
+// Handlebars
 app.engine(
-  "handlebars",
+  '.hbs',
   exphbs({
     helpers: {
-      truncate: truncate,
-      stripTags: stripTags,
-      formatDate: formatDate,
-      select: select,
-      editIcon: editIcon
+      formatDate,
+      stripTags,
+      truncate,
+      editIcon,
+      select,
     },
-    defaultLayout: "main"
+    defaultLayout: 'main',
+    extname: '.hbs',
   })
-);
-app.set("view engine", "handlebars");
+)
+app.set('view engine', '.hbs')
 
-app.use(cookieParser());
+// Sessions
 app.use(
   session({
-    secret: "secret",
+    secret: 'keyboard cat',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    store: new MongoStore({ mongooseConnection: mongoose.connection }),
   })
-);
+)
 
-//Passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
+// Passport middleware
+app.use(passport.initialize())
+app.use(passport.session())
 
-//Set global variables
-app.use((req, res, next) => {
-  res.locals.user = req.user || null;
-  next();
-});
+// Set global var
+app.use(function (req, res, next) {
+  res.locals.user = req.user || null
+  next()
+})
 
-//Set static folders
-app.use(express.static(path.join(__dirname, "public")));
+// Static folder
+app.use(express.static(path.join(__dirname, 'public')))
 
-// Use routes
-app.use("/", index);
-app.use("/auth", auth);
-app.use("/stories", stories);
+// Routes
+app.use('/', require('./routes/index'))
+app.use('/auth', require('./routes/auth'))
+app.use('/stories', require('./routes/stories'))
 
-const port = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000
 
-app.listen(port, () => {
-  console.log(`Server started on port ${port}`);
-});
+app.listen(
+  PORT,
+  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
+)

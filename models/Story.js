@@ -1,49 +1,28 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const mongoose = require('mongoose')
 
-//Create Schema
-const StorySchema = new Schema({
+const StorySchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true
+    required: true,
+    trim: true,
   },
   body: {
     type: String,
-    required: true
+    required: true,
   },
   status: {
     type: String,
-    default: "public"
+    default: 'public',
+    enum: ['public', 'private'],
   },
-  allowComments: {
-    type: Boolean,
-    default: true
-  },
-  comments: [
-    {
-      commentBody: {
-        type: String,
-        required: true
-      },
-      commentDate: {
-        type: Date,
-        default: Date.now
-      },
-      commentUser: {
-        type: Schema.Types.ObjectId,
-        ref: "users"
-      }
-    }
-  ],
   user: {
-    type: Schema.Types.ObjectId,
-    ref: "users"
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
   },
-  date: {
+  createdAt: {
     type: Date,
-    default: Date.now
-  }
-});
+    default: Date.now,
+  },
+})
 
-//Create collection and add schema
-mongoose.model("stories", StorySchema, "stories");
+module.exports = mongoose.model('Story', StorySchema)
