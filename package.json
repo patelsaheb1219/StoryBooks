@@ -8,7 +8,7 @@
     "dev": "NODE_ENV=development nodemon app",
     "postinstall": "node ./scripts/post-install.js"
   },
-  "author": "Brad Traversy",
+  "author": "Kishan Patel",
   "license": "MIT",
   "dependencies": {
     "connect-mongo": "^3.2.0",
@@ -19,7 +19,7 @@
     "fs-extra": "^9.0.1",
     "method-override": "^3.0.0",
     "moment": "^2.27.0",
-    "mongoose": "^5.9.19",
+    "mongoose": "^6.2.0",
     "morgan": "^1.10.0",
     "passport": "^0.4.1",
     "passport-google-oauth20": "^2.0.0"
